@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Registration</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #4ecdc4;
+        }
+
+        .auto-field {
+            background-color: #f9f9f9;
+            font-style: italic;
+            color: #888;
+        }
+
+        .error-message {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .global-error {
+            background-color: #ffe0e0;
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .global-error.show {
+            display: block;
+        }
+
+        #other_purpose {
+            display: none;
+            margin-top: 5px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background-color: #4ecdc4;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover:not(:disabled) {
+            background-color: #3dbdb5;
+            transform: translateY(-1px);
+        }
+
+        button[type="submit"]:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            background-color: #e8f8f5;
+            color: #4ecdc4;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .valid {
+            border-color: #4ecdc4 !important;
+        }
+
+        .invalid {
+            border-color: #ff6b6b !important;
+        }
+
+        /* Hide form when showing success */
+        #regForm.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🖥️ Lab Registration</h1>
+        
+        <div class="global-error" id="globalError">Please fill all fields correctly.</div>
+        
+        <form id="regForm">
+            <div class="form-group">
+                <label for="computer_no">Computer No:</label>
+                <input type="text" id="computer_no" name="computer_no" class="auto-field" readonly 
+                       value="{{ computer_no }}">
+            </div>
+
+            <div class="form-group">
+                <label for="in_time">In Time:</label>
+                <input type="text" id="in_time" name="in_time" class="auto-field" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="register_no">Register No (8 digits):</label>
+                <input type="text" id="register_no" name="register_no" 
+                       pattern="[0-9]{8}" maxlength="8" required
+                       placeholder="Enter 8-digit register number">
+                <div class="error-message" id="register_no_error">Must be exactly 8 digits.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required
+                       placeholder="Enter your full name">
+                <div class="error-message" id="name_error">Name is required.</div>
+            </div>
+
+            <div class="form-group">
+                <label for="purpose">Purpose:</label>
+                <select id="purpose" name="purpose" required>
+                    <option value="">-- Select Purpose --</option>
+                    <option value="Assignment">Assignment</option>
+                    <option value="Project">Project</option>
+                    <option value="Research">Research</option>
+                    <option value="Other">Other (specify below)</option>
+                </select>
+                <div class="error-message" id="purpose_error">Please select a purpose.</div>
+                
+                <input type="text" id="other_purpose" name="other_purpose" 
+                       placeholder="If 'Other', describe here">
+                <div class="error-message" id="other_purpose_error">Please specify the purpose.</div>
+            </div>
+
+            <button type="submit" id="submitBtn" disabled>Register & Exit</button>
+        </form>
+
+        <div class="success-message" id="successMessage">
+            ✅ Registration successful!<br>Closing in 3 seconds...
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const form = document.getElementById('regForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const globalError = document.getElementById('globalError');
+            const successMessage = document.getElementById('successMessage');
+            
+            const computerNoInput = document.getElementById('computer_no');
+            const inTimeInput = document.getElementById('in_time');
+            const registerNoInput = document.getElementById('register_no');
+            const nameInput = document.getElementById('name');
+            const purposeSelect = document.getElementById('purpose');
+            const otherPurposeInput = document.getElementById('other_purpose');
+
+            // State
+            let isSubmitted = false;
+
+            // Auto-fill fields
+            function autoFillFields() {
+                // Auto-fill computer_no from URL if not already set by server
+                const urlParams = new URLSearchParams(window.location.search);
+                const computerNo = urlParams.get('computer_no');
+                if (computerNo) {
+                    computerNoInput.value = computerNo;
+                } else if (!computerNoInput.value || computerNoInput.value === 'Auto-Detected') {
+                    computerNoInput.value = 'Auto-Detected';
+                }
+
+                // Auto-fill in_time with current date/time
+                inTimeInput.value = new Date().toLocaleString();
+            }
+
+            // Attempt to go fullscreen
+            function requestFullscreen() {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(() => {});
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen();
+                } else if (elem.msRequestFullscreen) {
+                    elem.msRequestFullscreen();
+                }
+            }
+
+            // Validate individual field
+            function validateField(fieldId) {
+                const field = document.getElementById(fieldId);
+                const errorDiv = document.getElementById(fieldId + '_error');
+                let isValid = false;
+
+                switch(fieldId) {
+                    case 'register_no':
+                        const regNo = field.value.trim();
+                        isValid = /^\d{8}$/.test(regNo);
+                        break;
+                    case 'name':
+                        isValid = field.value.trim().length > 0;
+                        break;
+                    case 'purpose':
+                        isValid = field.value !== '';
+                        break;
+                    case 'other_purpose':
+                        // Only validate if purpose is "Other"
+                        if (purposeSelect.value === 'Other') {
+                            isValid = field.value.trim().length > 0;
+                        } else {
+                            isValid = true;
+                        }
+                        break;
+                }
+
+                // Update UI
+                if (field.value.trim() === '' && fieldId !== 'purpose') {
+                    field.classList.remove('valid', 'invalid');
+                } else {
+                    field.classList.toggle('valid', isValid);
+                    field.classList.toggle('invalid', !isValid);
+                }
+
+                if (errorDiv) {
+                    errorDiv.classList.toggle('show', !isValid && field.value.trim() !== '');
+                }
+
+                return isValid;
+            }
+
+            // Validate entire form
+            function validateForm() {
+                const registerValid = validateField('register_no');
+                const nameValid = validateField('name');
+                const purposeValid = validateField('purpose');
+                
+                let otherValid = true;
+                if (purposeSelect.value === 'Other') {
+                    otherValid = validateField('other_purpose');
+                }
+
+                const allValid = registerValid && nameValid && purposeValid && otherValid;
+                
+                submitBtn.disabled = !allValid;
+                
+                // Show global error only if user has interacted and form is invalid
+                const hasInteracted = registerNoInput.value || nameInput.value || purposeSelect.value;
+                if (hasInteracted && !allValid) {
+                    globalError.classList.add('show');
+                } else {
+                    globalError.classList.remove('show');
+                }
+
+                return allValid;
+            }
+
+            // Handle purpose change to show/hide other_purpose field
+            function handlePurposeChange() {
+                const isOther = purposeSelect.value === 'Other';
+                otherPurposeInput.style.display = isOther ? 'block' : 'none';
+                otherPurposeInput.required = isOther;
+                
+                if (!isOther) {
+                    otherPurposeInput.value = '';
+                    otherPurposeInput.classList.remove('valid', 'invalid');
+                    document.getElementById('other_purpose_error').classList.remove('show');
+                }
+                
+                validateForm();
+            }
+
+            // Event listeners for validation
+            registerNoInput.addEventListener('input', function() {
+                // Only allow digits
+                this.value = this.value.replace(/[^0-9]/g, '');
+                validateForm();
+            });
+            registerNoInput.addEventListener('blur', () => validateForm());
+
+            nameInput.addEventListener('input', () => validateForm());
+            nameInput.addEventListener('blur', () => validateForm());
+
+            purposeSelect.addEventListener('change', handlePurposeChange);
+
+            otherPurposeInput.addEventListener('input', () => validateForm());
+            otherPurposeInput.addEventListener('blur', () => validateForm());
+
+            // Lockdown: Prevent closing without submission
+            window.addEventListener('beforeunload', function(e) {
+                if (!isSubmitted) {
+                    e.preventDefault();
+                    e.returnValue = 'Please complete the registration before leaving.';
+                    return e.returnValue;
+                }
+            });
+
+            // Disable right-click context menu
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+            });
+
+            // Disable F12 and Ctrl+Shift+I (developer tools)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                    (e.ctrlKey && e.shiftKey && e.key === 'i')) {
+                    e.preventDefault();
+                }
+            });
+
+            // Form submission
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!validateForm()) {
+                    return;
+                }
+
+                // Prepare form data
+                const formData = new FormData(form);
+                
+                // If purpose is "Other", use other_purpose value
+                if (purposeSelect.value === 'Other') {
+                    formData.set('purpose', otherPurposeInput.value.trim());
+                }
+
+                try {
+                    const response = await fetch('/', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Hide form, show success message
+                        form.classList.add('hidden');
+                        globalError.classList.remove('show');
+                        successMessage.classList.add('show');
+                        isSubmitted = true;
+
+                        // Close window after 3 seconds
+                        setTimeout(function() {
+                            window.close();
+                            // If window.close() doesn't work (most browsers block it),
+                            // show a message
+                            successMessage.innerHTML = '✅ Registration successful!<br>You may now close this window.';
+                        }, 3000);
+                    } else {
+                        // Show error
+                        globalError.textContent = data.error || 'An error occurred.';
+                        globalError.classList.add('show');
+                    }
+                } catch (error) {
+                    globalError.textContent = 'Network error. Please try again.';
+                    globalError.classList.add('show');
+                }
+            });
+
+            // Initialize
+            autoFillFields();
+            validateForm();
+            
+            // Attempt fullscreen after a short delay
+            setTimeout(requestFullscreen, 500);
+        });
+    </script>
+</body>
+</html>
