@@ -1,16 +1,17 @@
 """
-College Lab Registration Web App
-Flask Backend - Single file application
+College Lab Registration System
+Flask Backend - Professional Edition
 """
 
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import sqlite3
 import uuid
 from datetime import datetime
 import os
+import re
 
 app = Flask(__name__)
-app.secret_key = 'lab_registration_secret_key_2025'
+app.secret_key = 'lab_registration_secure_key_2025'
 
 DATABASE = 'logs.db'
 
@@ -26,105 +27,202 @@ def init_db():
     cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS logs (
-            session_id TEXT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT UNIQUE NOT NULL,
             register_no TEXT NOT NULL,
             name TEXT NOT NULL,
-            purpose TEXT NOT NULL,
+            department TEXT NOT NULL,
+            system_no TEXT NOT NULL,
             in_time TEXT NOT NULL,
+            in_date TEXT NOT NULL,
             out_time TEXT,
-            computer_no TEXT
+            out_date TEXT,
+            status TEXT DEFAULT 'active'
         )
     ''')
     conn.commit()
     conn.close()
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    """Handle registration form display and submission."""
-    if request.method == 'GET':
-        computer_no = request.args.get('computer_no', 'Auto-Detected')
-        in_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        return render_template('index.html', computer_no=computer_no, in_time=in_time)
+@app.route('/')
+def home():
+    """Redirect to registration page."""
+    return redirect(url_for('register'))
+
+@app.route('/register', methods=['GET'])
+def register():
+    """Display the registration form."""
+    # Get current date and time
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    current_time = datetime.now().strftime('%H:%M:%S')
     
-    elif request.method == 'POST':
-        # Get form data
-        register_no = request.form.get('register_no', '').strip()
-        name = request.form.get('name', '').strip()
-        purpose = request.form.get('purpose', '').strip()
-        computer_no = request.form.get('computer_no', '').strip()
-        in_time = request.form.get('in_time', '').strip()
+    return render_template('register.html', 
+                         current_date=current_date,
+                         current_time=current_time)
+
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    """Handle registration form submission."""
+    try:
+        data = request.get_json()
+        
+        # Extract and validate data
+        register_no = data.get('register_no', '').strip().upper()
+        name = data.get('name', '').strip()
+        department = data.get('department', '').strip()
+        system_no = data.get('system_no', '').strip()
+        in_time = data.get('in_time', '').strip()
+        in_date = data.get('in_date', '').strip()
         
         # Validation
-        import re
-        if not re.match(r'^\d{8}$', register_no):
-            return jsonify({'error': 'Register number must be exactly 8 digits.'}), 400
+        if not re.match(r'^[A-Z0-9]{12}$', register_no):
+            return jsonify({
+                'success': False, 
+                'error': 'Register number must be exactly 12 alphanumeric characters.'
+            }), 400
         
-        if not name:
-            return jsonify({'error': 'Name is required.'}), 400
+        if not name or len(name) < 2:
+            return jsonify({
+                'success': False, 
+                'error': 'Please enter a valid name.'
+            }), 400
         
-        if not purpose:
-            return jsonify({'error': 'Purpose is required.'}), 400
+        if not department:
+            return jsonify({
+                'success': False, 
+                'error': 'Please select a department.'
+            }), 400
+        
+        if not system_no or len(system_no) < 1:
+            return jsonify({
+                'success': False, 
+                'error': 'System number is required.'
+            }), 400
+        
+        # Check if student is already logged in (active session)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT * FROM logs 
+            WHERE register_no = ? AND status = 'active'
+        ''', (register_no,))
+        active_session = cursor.fetchone()
+        
+        if active_session:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'error': 'You are already logged in. Please log out first.'
+            }), 400
         
         # Generate session ID and insert into database
         session_id = str(uuid.uuid4())
         
-        conn = get_db_connection()
-        cursor = conn.cursor()
         cursor.execute('''
-            INSERT INTO logs (session_id, register_no, name, purpose, in_time, out_time, computer_no)
-            VALUES (?, ?, ?, ?, ?, NULL, ?)
-        ''', (session_id, register_no, name, purpose, in_time, computer_no))
+            INSERT INTO logs (
+                session_id, register_no, name, department, 
+                system_no, in_time, in_date, status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'active')
+        ''', (session_id, register_no, name, department, 
+              system_no, in_time, in_date))
+        
         conn.commit()
         conn.close()
         
-        # Write session_id to file for tracking
+        # Write session info to file for tracking
         with open('current_session.txt', 'w') as f:
-            f.write(session_id)
+            f.write(f"{session_id}|{register_no}|{name}")
         
-        session['complete'] = True
+        return jsonify({
+            'success': True,
+            'message': 'Registration successful!',
+            'session_id': session_id,
+            'name': name
+        })
         
-        return jsonify({'success': True, 'message': 'Logged!', 'session_id': session_id})
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }), 500
 
-@app.route('/update-out', methods=['POST'])
-def update_out():
-    """Update the out_time for a session."""
-    data = request.get_json()
-    
-    if not data or 'session_id' not in data:
-        return jsonify({'error': 'session_id is required.'}), 400
-    
-    session_id = data['session_id']
-    
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    """Handle logout (update out_time)."""
+    try:
+        data = request.get_json()
+        session_id = data.get('session_id', '').strip()
+        
+        if not session_id:
+            return jsonify({
+                'success': False,
+                'error': 'Session ID is required.'
+            }), 400
+        
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Check if session exists and is active
+        cursor.execute('''
+            SELECT * FROM logs 
+            WHERE session_id = ? AND status = 'active'
+        ''', (session_id,))
+        session = cursor.fetchone()
+        
+        if not session:
+            conn.close()
+            return jsonify({
+                'success': False,
+                'error': 'Invalid session or already logged out.'
+            }), 400
+        
+        # Update out_time and status
+        out_time = datetime.now().strftime('%H:%M:%S')
+        out_date = datetime.now().strftime('%Y-%m-%d')
+        
+        cursor.execute('''
+            UPDATE logs 
+            SET out_time = ?, out_date = ?, status = 'completed'
+            WHERE session_id = ?
+        ''', (out_time, out_date, session_id))
+        
+        conn.commit()
+        conn.close()
+        
+        # Clear session file
+        if os.path.exists('current_session.txt'):
+            os.remove('current_session.txt')
+        
+        return jsonify({
+            'success': True,
+            'message': 'Logged out successfully!'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'An error occurred: {str(e)}'
+        }), 500
+
+@app.route('/admin')
+def admin():
+    """Display admin dashboard with all logs."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    
-    # Check if session exists and out_time is NULL
-    cursor.execute('SELECT * FROM logs WHERE session_id = ? AND out_time IS NULL', (session_id,))
-    row = cursor.fetchone()
-    
-    if not row:
-        conn.close()
-        return jsonify({'error': 'Session not found or already logged out.'}), 400
-    
-    # Update out_time
-    out_time = datetime.now().isoformat()
-    cursor.execute('UPDATE logs SET out_time = ? WHERE session_id = ?', (out_time, session_id))
-    conn.commit()
+    cursor.execute('SELECT * FROM logs ORDER BY id DESC')
+    logs = cursor.fetchall()
     conn.close()
     
-    # Delete current_session.txt if exists
-    if os.path.exists('current_session.txt'):
-        os.remove('current_session.txt')
-    
-    return jsonify({'success': True, 'message': 'Logged out successfully.'})
+    return render_template('admin.html', logs=logs)
 
 if __name__ == '__main__':
     # Initialize database on startup
     init_db()
-    print("=" * 50)
-    print("College Lab Registration System")
-    print("=" * 50)
+    print("=" * 60)
+    print("🖥️  College Lab Registration System")
+    print("=" * 60)
     print("Server running at: http://localhost:5000")
-    print("Access with computer_no: http://localhost:5000?computer_no=Lab1")
-    print("=" * 50)
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    print("Registration page: http://localhost:5000/register")
+    print("Admin dashboard: http://localhost:5000/admin")
+    print("=" * 60)
+    app.run(host='0.0.0.0', port=5000, debug=True)

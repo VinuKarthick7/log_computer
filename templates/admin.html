@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lab Registration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1E2836 0%, #2B3A4A 100%);
+            color: #F8FAFC;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(43, 58, 74, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+        
+        .stat-card h3 {
+            font-size: 0.875rem;
+            color: #94A3B8;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0EA5E9;
+        }
+        
+        .table-container {
+            background: rgba(43, 58, 74, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 0.75rem;
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: rgba(30, 40, 54, 0.8);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #94A3B8;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        td {
+            padding: 1rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        tr:hover {
+            background: rgba(14, 165, 233, 0.05);
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .badge-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6EE7B7;
+        }
+        
+        .badge-completed {
+            background: rgba(148, 163, 184, 0.2);
+            color: #94A3B8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎛️ Admin Dashboard</h1>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3>Total Sessions</h3>
+                <p>{{ logs|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Active Now</h3>
+                <p>{{ logs|selectattr("status", "equalto", "active")|list|length }}</p>
+            </div>
+            <div class="stat-card">
+                <h3>Completed</h3>
+                <p>{{ logs|selectattr("status", "equalto", "completed")|list|length }}</p>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Register No</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                        <th>System</th>
+                        <th>In Time</th>
+                        <th>Out Time</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.id }}</td>
+                        <td>{{ log.register_no }}</td>
+                        <td>{{ log.name }}</td>
+                        <td>{{ log.department }}</td>
+                        <td>{{ log.system_no }}</td>
+                        <td>{{ log.in_date }} {{ log.in_time }}</td>
+                        <td>{% if log.out_time %}{{ log.out_date }} {{ log.out_time }}{% else %}-{% endif %}</td>
+                        <td>
+                            <span class="badge badge-{{ log.status }}">
+                                {{ log.status|upper }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: #94A3B8;">No records found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

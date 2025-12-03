@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Registration - College Lab System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Section - Branding -->
+        <div class="left-section">
+            <div class="branding">
+                <div class="logo-icon">🖥️</div>
+                <h1>Lab Registration System</h1>
+                <p class="tagline">Computer Lab Access Management</p>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-item">
+                    <span class="info-icon">📅</span>
+                    <div>
+                        <p class="info-label">Current Date</p>
+                        <p class="info-value" id="displayDate">{{ current_date }}</p>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <span class="info-icon">⏰</span>
+                    <div>
+                        <p class="info-label">Entry Time</p>
+                        <p class="info-value" id="displayTime">{{ current_time }}</p>
+                    </div>
+                </div>
+
+                <div class="info-notice">
+                    <p><strong>Important:</strong></p>
+                    <p>Please enter your system number and complete all required fields to sign in to the lab.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Section - Form -->
+        <div class="right-section">
+            <!-- Error Alert -->
+            <div class="alert alert-error" id="errorAlert" style="display: none;">
+                <span class="alert-icon">⚠️</span>
+                <span id="errorMessage"></span>
+            </div>
+
+            <!-- Success Alert -->
+            <div class="alert alert-success" id="successAlert" style="display: none;">
+                <span class="alert-icon">✓</span>
+                <span id="successMessage"></span>
+            </div>
+
+            <div class="form-header">
+                <h2>Student Information</h2>
+                <p>Please fill in your details to access the lab</p>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="registrationForm">
+                <!-- Hidden fields for submission -->
+                <input type="hidden" id="in_date" name="in_date" value="{{ current_date }}">
+                <input type="hidden" id="in_time" name="in_time" value="{{ current_time }}">
+
+                <div class="form-grid">
+                    <!-- System Number - Now Manual Entry -->
+                    <div class="form-group">
+                        <label for="system_no">
+                            System Number
+                            <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="system_no" 
+                            name="system_no" 
+                            placeholder="e.g., LAB-01, PC-15, SYS-23"
+                            required
+                            class="input-field">
+                        <span class="field-hint">Enter the computer/system number</span>
+                    </div>
+
+                    <!-- Register Number -->
+                    <div class="form-group">
+                        <label for="register_no">
+                            Register Number
+                            <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="register_no" 
+                            name="register_no" 
+                            placeholder="12 alphanumeric (e.g., 23CSE0123ABC)"
+                            maxlength="12"
+                            required
+                            class="input-field">
+                        <span class="field-hint">Must be exactly 12 characters</span>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label for="name">
+                            Full Name
+                            <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            placeholder="Enter your full name"
+                            required
+                            class="input-field">
+                    </div>
+
+                    <!-- Department -->
+                    <div class="form-group">
+                        <label for="department">
+                            Department
+                            <span class="required">*</span>
+                        </label>
+                        <select id="department" name="department" required class="input-field select-field">
+                            <option value="">-- Select Department --</option>
+                            <option value="Computer Science">Computer Science & Engineering (CSE)</option>
+                            <option value="Information Technology">Information Technology (IT)</option>
+                            <option value="Electronics">Electronics & Communication (ECE)</option>
+                            <option value="Electrical">Electrical & Electronics (EEE)</option>
+                            <option value="Mechanical">Mechanical Engineering (MECH)</option>
+                            <option value="Civil">Civil Engineering (CIVIL)</option>
+                            <option value="Artificial Intelligence">Artificial Intelligence & Data Science (AI&DS)</option>
+                            <option value="Cyber Security">Cyber Security</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    <span class="btn-text">Sign In to Lab</span>
+                    <span class="btn-icon">→</span>
+                </button>
+
+                <p class="form-footer-text">
+                    By signing in, you agree to follow lab rules and regulations
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
