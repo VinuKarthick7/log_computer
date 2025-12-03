@@ -1,4 +1,5 @@
 venv/
 logs.db
 current_session.txt
+shutdown_log.txt
 
