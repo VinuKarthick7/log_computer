@@ -5,20 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lab Registration - College Lab System</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Simple Professional Icon Styles */
+        .logo-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+            background: rgba(14, 165, 233, 0.08);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        
+        .logo-icon .svg-icon {
+            width: 60px;
+            height: 60px;
+            stroke: #0EA5E9;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .info-icon {
+            width: 56px;
+            height: 56px;
+            min-width: 56px;
+            background: rgba(3, 126, 183, 0.08);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+        }
+        
+        .info-icon .svg-icon {
+            width: 32px;
+            height: 32px;
+            stroke: #0EA5E9;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        .alert-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+        }
+        
+        .alert-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <!-- Left Section - Branding -->
         <div class="left-section">
             <div class="branding">
-                <div class="logo-icon">🖥️</div>
+                <div class="logo-icon">
+                    <!-- Simple Professional Monitor Icon -->
+                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Monitor screen -->
+                        <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor"/>
+                        <!-- Screen inner detail -->
+                        <rect x="4" y="5" width="16" height="10" rx="1" stroke="currentColor" opacity="0.3"/>
+                        <!-- Monitor stand -->
+                        <path d="M9 21h6" stroke="currentColor"/>
+                        <path d="M12 17v4" stroke="currentColor"/>
+                        <!-- Power indicator -->
+                        <circle cx="12" cy="19" r="0.5" fill="currentColor"/>
+                    </svg>
+                </div>
                 <h1>Lab Registration System</h1>
                 <p class="tagline">Computer Lab Access Management</p>
             </div>
             
             <div class="info-card">
                 <div class="info-item">
-                    <span class="info-icon">📅</span>
+                    <span class="info-icon">
+                        <!-- Simple Professional Calendar Icon -->
+                        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Calendar body -->
+                            <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor"/>
+                            <!-- Header line -->
+                            <path d="M3 10h18" stroke="currentColor"/>
+                            <!-- Binding rings -->
+                            <path d="M7 3v3M12 3v3M17 3v3" stroke="currentColor"/>
+                            <!-- Date dots (simple grid) -->
+                            <circle cx="7" cy="14" r="0.5" fill="currentColor" opacity="0.4"/>
+                            <circle cx="12" cy="14" r="0.5" fill="currentColor" opacity="0.4"/>
+                            <circle cx="17" cy="14" r="0.5" fill="currentColor" opacity="0.4"/>
+                            <circle cx="7" cy="17" r="0.5" fill="currentColor" opacity="0.4"/>
+                            <circle cx="12" cy="17" r="0.5" fill="currentColor" opacity="0.8"/>
+                            <circle cx="17" cy="17" r="0.5" fill="currentColor" opacity="0.4"/>
+                        </svg>
+                    </span>
                     <div>
                         <p class="info-label">Current Date</p>
                         <p class="info-value" id="displayDate">{{ current_date }}</p>
@@ -26,7 +117,23 @@
                 </div>
                 
                 <div class="info-item">
-                    <span class="info-icon">⏰</span>
+                    <span class="info-icon">
+                        <!-- Simple Professional Clock Icon -->
+                        <svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Clock face -->
+                            <circle cx="12" cy="12" r="9" stroke="currentColor"/>
+                            <!-- Hour markers -->
+                            <circle cx="12" cy="5" r="0.5" fill="currentColor"/>
+                            <circle cx="12" cy="19" r="0.5" fill="currentColor"/>
+                            <circle cx="19" cy="12" r="0.5" fill="currentColor"/>
+                            <circle cx="5" cy="12" r="0.5" fill="currentColor"/>
+                            <!-- Clock hands -->
+                            <path d="M12 12V7" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 12l3 2" stroke="currentColor" stroke-width="2"/>
+                            <!-- Center dot -->
+                            <circle cx="12" cy="12" r="1" fill="currentColor"/>
+                        </svg>
+                    </span>
                     <div>
                         <p class="info-label">Entry Time</p>
                         <p class="info-value" id="displayTime">{{ current_time }}</p>
@@ -44,13 +151,22 @@
         <div class="right-section">
             <!-- Error Alert -->
             <div class="alert alert-error" id="errorAlert" style="display: none;">
-                <span class="alert-icon">⚠️</span>
+                <span class="alert-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </span>
                 <span id="errorMessage"></span>
             </div>
 
             <!-- Success Alert -->
             <div class="alert alert-success" id="successAlert" style="display: none;">
-                <span class="alert-icon">✓</span>
+                <span class="alert-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </span>
                 <span id="successMessage"></span>
             </div>
 
@@ -66,7 +182,7 @@
                 <input type="hidden" id="in_time" name="in_time" value="{{ current_time }}">
 
                 <div class="form-grid">
-                    <!-- System Number - Now Manual Entry -->
+                    <!-- System Number -->
                     <div class="form-group">
                         <label for="system_no">
                             System Number
