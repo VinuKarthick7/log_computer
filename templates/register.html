@@ -7,22 +7,28 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         /* Simple Professional Icon Styles */
+        .logo-image {
+            width: 160px;
+            height: 90px;
+            margin: 0 auto 15px;
+            display: block;
+        }
+        
         .logo-icon {
             width: 100px;
             height: 100px;
-            margin: 0 auto 20px;
-            background: rgba(14, 165, 233, 0.08);
+            margin: 0 auto 0px;
+            background: rgba(0, 0, 0, 0.08);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid rgba(14, 165, 233, 0.2);
         }
         
         .logo-icon .svg-icon {
             width: 60px;
             height: 60px;
-            stroke: #0EA5E9;
+            stroke: #046c9c;
             fill: none;
             stroke-width: 2;
             stroke-linecap: round;
@@ -30,8 +36,8 @@
         }
         
         .logo-icon .logo-image {
-            width: 60px;
-            height: 60px;
+            width: 100px;
+            height: 100px;
             object-fit: contain;
         }
         
@@ -78,9 +84,7 @@
         <!-- Left Section - Branding -->
         <div class="left-section">
             <div class="branding">
-                <div class="logo-icon">
-                    <img src="{{ url_for('static', filename='images/kite-logo.png') }}" alt="Lab Registration Logo" class="logo-image">
-                </div>
+                <img src="{{ url_for('static', filename='images/kite-logo1.png') }}" alt="Lab Registration Logo" class="logo-image">
                 <h1>Lab Registration System</h1>
                 <p class="tagline">Computer Lab Access Management</p>
             </div>
