@@ -29,6 +29,12 @@
             stroke-linejoin: round;
         }
         
+        .logo-icon .logo-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+        }
+        
         .info-icon {
             width: 56px;
             height: 56px;
@@ -73,18 +79,7 @@
         <div class="left-section">
             <div class="branding">
                 <div class="logo-icon">
-                    <!-- Simple Professional Monitor Icon -->
-                    <svg class="svg-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Monitor screen -->
-                        <rect x="2" y="3" width="20" height="14" rx="2" stroke="currentColor"/>
-                        <!-- Screen inner detail -->
-                        <rect x="4" y="5" width="16" height="10" rx="1" stroke="currentColor" opacity="0.3"/>
-                        <!-- Monitor stand -->
-                        <path d="M9 21h6" stroke="currentColor"/>
-                        <path d="M12 17v4" stroke="currentColor"/>
-                        <!-- Power indicator -->
-                        <circle cx="12" cy="19" r="0.5" fill="currentColor"/>
-                    </svg>
+                    <img src="{{ url_for('static', filename='images/kite-logo.png') }}" alt="Lab Registration Logo" class="logo-image">
                 </div>
                 <h1>Lab Registration System</h1>
                 <p class="tagline">Computer Lab Access Management</p>
