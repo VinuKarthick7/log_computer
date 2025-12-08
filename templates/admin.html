@@ -401,7 +401,7 @@
                     <span class="stat-icon">📅</span>
                 </div>
                 <div class="stat-value">
-                    {% set today = logs|selectattr("in_date", "equalto", "2025-12-03")|list|length %}
+                    {% set today = logs|selectattr("in_date", "equalto", current_date)|list|length %}
                     {{ today }}
                 </div>
                 <div class="stat-label">Registrations today</div>

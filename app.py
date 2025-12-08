@@ -213,7 +213,10 @@ def admin():
     logs = cursor.fetchall()
     conn.close()
     
-    return render_template('admin.html', logs=logs)
+    # Get current date for today's sessions calculation
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    
+    return render_template('admin.html', logs=logs, current_date=current_date)
 
 if __name__ == '__main__':
     # Initialize database on startup
